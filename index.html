@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GOS Explained</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A1730; --bg2:#0E2044; --panel:#112750; --panel2:#17346a; --line:#2A4A86;
+  --text:#EEF3FC; --muted:#A3B5D6; --orange:#FF8A1F; --cyan:#4CC3F2; --violet:#A38BF5;
+  --green:#3DD68C; --red:#FF6B6B; --grey:#4A5F8C;
+  --display:'Sora','Segoe UI',system-ui,sans-serif; --body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--text);font-family:var(--body);}
+body{padding-inline:clamp(16px,4vw,48px);padding-block:20px 28px;min-height:100vh;
+  background:radial-gradient(1200px 600px at 85% -10%,#173a7a55,transparent 60%),var(--bg);}
+.wrap{max-width:1120px;margin-inline:auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:.02em}
+.logo b{color:var(--orange)}
+.tag{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:600}
+
+.stage{position:relative;background:linear-gradient(180deg,var(--bg2),#0C1C3B);border:1px solid var(--line);
+  border-radius:14px;padding:clamp(18px,3.4vw,40px);min-height:520px;overflow:hidden}
+.scene{display:none;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,4vw,48px);align-items:center;min-height:460px}
+.scene.active{display:grid}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:600;margin:0 0 12px}
+h1,h2{font-family:var(--display);margin:0 0 14px;line-height:1.12;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(30px,4.6vw,52px);font-weight:800}
+h2{font-size:clamp(24px,3.2vw,36px);font-weight:700}
+.lede{font-size:clamp(16px,1.6vw,19px);line-height:1.55;color:var(--muted);margin:0;max-width:44ch}
+.lede strong{color:var(--text);font-weight:600}
+.analogy{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:14px;color:var(--muted);max-width:44ch;line-height:1.5}
+.analogy span{color:var(--orange);font-weight:600}
+.vis{position:relative;min-width:0}
+.note{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+
+/* entrance animation */
+.a{opacity:1}
+.scene.active .a{animation:rise .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.6)}70%{transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+.scene.active .p{animation:pop .6s ease both;animation-delay:var(--d,0s)}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.chip{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);font-size:13.5px;font-weight:500}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--green);margin-right:8px}
+
+/* scene 1 skyline */
+.skyline{display:flex;align-items:flex-end;justify-content:center;gap:18px;height:300px}
+.bld{width:28%;max-width:170px;border:1px solid var(--line);border-radius:8px 8px 0 0;background:var(--panel);position:relative;
+  display:flex;flex-direction:column;justify-content:flex-end;padding:12px;gap:6px;transform-origin:bottom}
+.bld.b1{height:190px}.bld.b2{height:260px;border-color:var(--orange)}.bld.b3{height:220px}
+.scene.active .bld{animation:grow 1s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes grow{from{transform:scaleY(.05);opacity:0}to{transform:none;opacity:1}}
+.bld i{display:block;height:8px;border-radius:3px;background:var(--line)}
+.bld i:nth-child(odd){background:var(--grey)}
+.bld small{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:auto}
+.core{position:absolute;left:50%;top:6px;transform:translateX(-50%);font-family:var(--display);font-weight:800;color:var(--orange);font-size:34px}
+
+/* scene 2 */
+.tenants{display:grid;gap:12px}
+.ten{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center}
+.ten .ico{grid-row:span 2;width:44px;height:44px;border-radius:10px;background:var(--panel2);display:grid;place-items:center;color:var(--cyan)}
+.ten b{font-family:var(--display);font-size:15px}
+.ten span{font-size:13.5px;color:var(--muted)}
+.ten em{font-style:normal;color:var(--orange);font-size:12px;letter-spacing:.06em}
+.prods{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.prods .lab{font-size:13px;color:var(--muted);margin-right:4px}
+
+/* scene 3 identity */
+.idrow{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(10px,2vw,24px);align-items:center}
+.person{width:64px;height:64px;border-radius:50%;background:var(--panel2);border:2px solid var(--cyan);display:grid;place-items:center;color:var(--cyan)}
+.scene.active .person{animation:walk 1.4s ease-in-out .3s both}
+@keyframes walk{from{transform:translateX(-14px)}to{transform:translateX(18px)}}
+.gate{text-align:center;border-color:var(--cyan)}
+.gate b{font-family:var(--display);display:block;font-size:18px;color:var(--cyan)}
+.gate span{font-size:13px;color:var(--muted)}
+.pass{border-color:var(--orange);min-width:190px}
+.pass h4{margin:0 0 8px;font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--orange)}
+.pass div{font-size:13.5px;padding:4px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px}
+.pass div span{color:var(--muted)}
+.notyet{margin-top:16px;font-size:14px;color:var(--muted)}
+.notyet b{color:var(--text)}
+
+/* scene 4 entitlements */
+.tiers{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tier{font-size:12.5px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.tier.on{background:var(--orange);border-color:var(--orange);color:#1a1000;font-weight:600}
+.mod{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:15px}
+.mod:first-of-type{border-top:0}
+.mod small{display:block;color:var(--muted);font-size:12.5px}
+.sw{flex:none;width:44px;height:24px;border-radius:999px;background:var(--grey);position:relative}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff}
+.scene.active .sw.on{animation:swon .4s ease both;animation-delay:var(--d)}
+.scene.active .sw.on::after{animation:swknob .4s ease both;animation-delay:var(--d)}
+@keyframes swon{to{background:var(--green)}}
+@keyframes swknob{to{left:23px}}
+.meter{margin-top:14px}
+.meter div.bar{height:10px;border-radius:6px;background:var(--panel2);overflow:hidden;margin-top:6px}
+.meter div.bar i{display:block;height:100%;width:64%;background:var(--orange);border-radius:6px;transform-origin:left}
+.scene.active .meter i{animation:fill 1.6s ease-out 1.6s both}
+@keyframes fill{from{transform:scaleX(0)}to{transform:none}}
+.meter span{font-size:13px;color:var(--muted);display:flex;justify-content:space-between}
+
+/* scene 5 roles */
+.vmsbox{border:1px dashed var(--violet);border-radius:14px;padding:16px;background:#a38bf510}
+.vmsbox>b{font-family:var(--display);color:var(--violet);font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.roles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.role{border-color:#a38bf566}
+.role b{font-family:var(--display);font-size:15px;display:block;margin-bottom:8px}
+.role li{font-size:13px;color:var(--muted);margin:4px 0}
+.role ul{margin:0;padding-left:16px}
+
+/* scene 6 locks */
+.scen{margin-bottom:14px}
+.scen h4{margin:0 0 10px;font-size:14px;font-weight:500;color:var(--muted)}
+.scen h4 b{color:var(--text);font-weight:600}
+.locks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:8px;align-items:stretch}
+.lock{border:1px solid var(--line);border-radius:10px;padding:10px 8px;text-align:center;font-size:12px;color:var(--muted);background:var(--panel);line-height:1.3}
+.lock svg{display:block;margin:0 auto 6px;width:22px;height:22px}
+.lock b{display:block;color:var(--text);font-size:12.5px;font-weight:600;margin-bottom:2px}
+.res{display:grid;place-items:center;padding:0 12px;border-radius:10px;font-family:var(--display);font-weight:700;font-size:13px;border:1px solid var(--line);color:var(--muted)}
+.scene.active .lock.ok{animation:lok .5s ease both;animation-delay:var(--d)}
+.scene.active .lock.no{animation:lno .5s ease both;animation-delay:var(--d)}
+@keyframes lok{to{border-color:var(--green);background:#3dd68c1c;color:var(--text)}}
+@keyframes lno{to{border-color:var(--red);background:#ff6b6b1c;color:var(--text)}}
+.scene.active .res.ok{animation:rok .5s ease both;animation-delay:var(--d)}
+.scene.active .res.no{animation:rno .5s ease both;animation-delay:var(--d)}
+@keyframes rok{to{background:var(--green);border-color:var(--green);color:#03170d}}
+@keyframes rno{to{background:var(--red);border-color:var(--red);color:#2a0505}}
+.skip{opacity:.35}
+.rule{margin-top:6px;font-size:14px;color:var(--muted)}
+.rule b{color:var(--orange)}
+
+/* scene 7 telemetry */
+.hub{text-align:center;border-color:var(--orange)}
+.hub b{font-family:var(--display);color:var(--orange);font-size:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stats div{background:var(--panel2);border-radius:8px;padding:8px 4px}
+.stats strong{display:block;font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.stats span{font-size:11.5px;color:var(--muted)}
+.feeds{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.feed{display:flex;flex-direction:column;align-items:center}
+.pipe{position:relative;width:2px;height:72px;background:var(--line);margin:0 0 -1px}
+.pipe i{position:absolute;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--orange);opacity:0}
+.scene.active .pipe i{animation:up 1.8s linear infinite;animation-delay:var(--d)}
+@keyframes up{0%{bottom:-4px;opacity:0}15%{opacity:1}85%{opacity:1}100%{bottom:68px;opacity:0}}
+.gw{width:100%;text-align:center;font-size:12.5px;color:var(--muted)}
+.gw b{display:block;color:var(--text);font-family:var(--display);font-size:13px;margin-bottom:2px}
+.offline{margin-top:14px;font-size:13.5px;color:var(--muted);display:flex;gap:10px;align-items:center}
+
+/* scene 8 recap */
+.recap{display:grid;gap:10px}
+.rq{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center;padding:12px 14px;border-left:3px solid var(--c)}
+.rq{background:var(--panel);border-radius:0 10px 10px 0}
+.rq b{font-family:var(--display);font-size:16px}
+.rq span{font-size:14px;color:var(--muted)}
+.rq .who{grid-row:span 2;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--c);text-transform:uppercase;width:92px}
+
+/* controls */
+.controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btns{display:flex;gap:8px}
+button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:10px;height:42px;min-width:42px;padding:0 14px;cursor:pointer;font-weight:500}
+button:hover{background:var(--panel2)}
+button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+button.main{background:var(--orange);border-color:var(--orange);color:#1a1000;font-weight:600;min-width:96px}
+button.main:hover{background:#ff9a3d}
+.steps{display:flex;gap:6px;flex:1;min-width:200px}
+.steps button{flex:1;height:34px;padding:0;min-width:0;position:relative;overflow:hidden;border-radius:6px}
+.steps button i{position:absolute;inset:0;background:var(--orange);transform-origin:left;transform:scaleX(0);opacity:.85}
+.steps button.done i{transform:scaleX(1);opacity:.35}
+.steps button.cur{border-color:var(--orange)}
+.steps span{position:relative;font-size:12px;color:var(--text)}
+.count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+@media (max-width:820px){
+  .scene.active{grid-template-columns:1fr}
+  .stage{min-height:0}
+  .steps span{display:none}
+  .steps button{height:12px}
+  .roles{grid-template-columns:1fr}
+  .locks{grid-template-columns:repeat(2,1fr)}
+  .res{padding:10px;grid-column:span 2}
+  .idrow{grid-template-columns:1fr;justify-items:center}
+  .skyline{height:240px}
+}
+@media (prefers-reduced-motion:reduce){
+  .scene.active .a,.scene.active .p,.scene.active .bld,.scene.active .person,.scene.active .pipe i,.scene.active .meter i{animation:none!important}
+  .scene.active .sw.on{background:var(--green)}.scene.active .sw.on::after{left:23px}
+  .scene.active .lock.ok{border-color:var(--green)}.scene.active .lock.no{border-color:var(--red)}
+  .scene.active .res.ok{background:var(--green);color:#03170d}.scene.active .res.no{background:var(--red);color:#2a0505}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-lock" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 017 0v3"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 3.5-6 8-6s8 2 8 6"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M5 21V4h9v17M14 9h5v12M8 8h3M8 12h3M8 16h3M3 21h18"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M7 18a4 4 0 01-.5-7.97A5.5 5.5 0 0117 9.5 4.3 4.3 0 0117 18z"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header>
+    <div class="logo">GOS<b>›</b></div>
+    <div class="tag">One platform. Many possibilities.</div>
+  </header>
+
+  <main class="stage" id="stage" aria-live="polite">
+
+    <!-- 1 -->
+    <section class="scene active" data-label="Overview" data-ms="9000">
+      <div>
+        <p class="eyebrow a">A short tour of GOS</p>
+        <h1 class="a" style="--d:.15s">One platform. Many customers. Each fully separate.</h1>
+        <p class="lede a" style="--d:.35s">GOS lets you run the same business software for many organisations, while keeping every customer's people, data and rules in a space that is <strong>entirely their own</strong>.</p>
+      </div>
+      <div class="vis">
+        <div class="skyline" role="img" aria-label="Three separate buildings under one platform">
+          <div class="core p" style="--d:1.6s">GOS</div>
+          <div class="bld b1" style="--d:.4s"><small>Customer A</small><i></i><i></i><i></i></div>
+          <div class="bld b2" style="--d:.7s"><small>Customer B</small><i></i><i></i><i></i><i></i></div>
+          <div class="bld b3" style="--d:1s"><small>Customer C</small><i></i><i></i><i></i></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="scene" data-label="The setup" data-ms="11000">
+      <div>
+        <p class="eyebrow a">The challenge</p>
+        <h2 class="a" style="--d:.1s">Same software, but every customer wants it their way.</h2>
+        <p class="lede a" style="--d:.3s">Some want it on their own servers. Some prefer the public cloud. Others insist on a private data centre. GOS supports all three, and each customer gets the <strong>same four products</strong>.</p>
+      </div>
+      <div class="vis">
+        <div class="tenants">
+          <div class="card ten a" style="--d:.5s"><div class="ico"><svg width="24" height="24"><use href="#i-building"/></svg></div><b>Customer A · GIC</b><span>Runs on the customer's own infrastructure <em>ON-PREMISES</em></span></div>
+          <div class="card ten a" style="--d:1s"><div class="ico"><svg width="24" height="24"><use href="#i-cloud"/></svg></div><b>Customer B · Royal Khalahari</b><span>Runs in the public cloud (Azure or AWS) <em>CLOUD</em></span></div>
+          <div class="card ten a" style="--d:1.5s"><div class="ico"><svg width="24" height="24"><use href="#i-server"/></svg></div><b>Customer C · Blaauwklippen</b><span>Runs in the customer's private data centre <em>PRIVATE</em></span></div>
+        </div>
+        <div class="prods">
+          <span class="lab a" style="--d:2.2s">In every one:</span>
+          <span class="chip p" style="--d:2.4s">Project Admin</span>
+          <span class="chip p" style="--d:2.6s">Signflow</span>
+          <span class="chip p" style="--d:2.8s">DocuWeave</span>
+          <span class="chip p" style="--d:3s">Echo</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="scene" data-label="Who" data-ms="11000">
+      <div>
+        <p class="eyebrow a">Question 1 of 4 · Who are you?</p>
+        <h2 class="a" style="--d:.1s">One front door for everybody.</h2>
+        <p class="lede a" style="--d:.3s">People sign in once through <strong>GIC IAM</strong>, the central identity service. It checks who they are and which customer they belong to, then hands them a signed pass.</p>
+        <p class="analogy a" style="--d:.6s"><span>Think of it as</span> the security desk at a business park. It checks your ID and prints a badge. It doesn't decide which rooms you can enter.</p>
+      </div>
+      <div class="vis">
+        <div class="idrow">
+          <div class="person"><svg width="30" height="30"><use href="#i-user"/></svg></div>
+          <div class="card gate a" style="--d:.5s"><b>GIC IAM</b><span>Single sign-on · MFA</span></div>
+          <div class="card pass p" style="--d:2s">
+            <h4>Signed pass</h4>
+            <div><span>Person</span>A. Example</div>
+            <div><span>Customer</span>Tenant A</div>
+            <div><span>Verified</span>SSO + MFA</div>
+          </div>
+        </div>
+        <p class="notyet a" style="--d:2.8s">The pass says <b>who you are</b> and <b>which customer you belong to</b>. Nothing more, yet.</p>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="scene" data-label="What's bought" data-ms="11500">
+      <div>
+        <p class="eyebrow a">Question 2 of 4 · What has your company bought?</p>
+        <h2 class="a" style="--d:.1s">The platform knows each customer's plan.</h2>
+        <p class="lede a" style="--d:.3s">The <strong>GOS Control Plane</strong> keeps the record of what each customer has paid for: which products are switched on, which features they get and how much they may use.</p>
+        <p class="analogy a" style="--d:.6s"><span>Think of it as</span> the lease. It states which floors of the building a tenant has rented, and for how much use.</p>
+      </div>
+      <div class="vis">
+        <div class="card a" style="--d:.4s">
+          <div class="tiers"><span class="tier">Standard</span><span class="tier on">Professional</span><span class="tier">Enterprise</span></div>
+          <div class="mod"><div>Project Admin<small>Included in plan</small></div><span class="sw on" style="--d:.9s"></span></div>
+          <div class="mod"><div>Signflow<small>Included in plan</small></div><span class="sw on" style="--d:1.2s"></span></div>
+          <div class="mod"><div>DocuWeave<small>Included in plan</small></div><span class="sw on" style="--d:1.5s"></span></div>
+          <div class="mod"><div>Echo<small>Not in this plan</small></div><span class="sw"></span></div>
+          <div class="meter"><span><span>Signflow usage this month</span><span>64% of limit</span></span><div class="bar"><i></i></div></div>
+        </div>
+        <p class="note a" style="--d:2s">Illustrative example</p>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="scene" data-label="What they can do" data-ms="11500">
+      <div>
+        <p class="eyebrow a">Question 3 of 4 · What can this person do?</p>
+        <h2 class="a" style="--d:.1s">Each customer runs its own house rules.</h2>
+        <p class="lede a" style="--d:.3s">Inside every customer's space sits the <strong>Vendor Management System</strong>. It holds that customer's users, vendors, roles and approval workflows, so GOS doesn't have to manage them centrally.</p>
+        <p class="analogy a" style="--d:.6s"><span>Think of it as</span> the tenant's own reception and key cabinet. Only they decide who gets which key.</p>
+      </div>
+      <div class="vis">
+        <div class="vmsbox a" style="--d:.4s">
+          <b>Inside Tenant A · Vendor Management System</b>
+          <div class="roles">
+            <div class="card role p" style="--d:.9s"><b>Administrator</b><ul><li>Manages users</li><li>Onboards vendors</li><li>Sets policies</li></ul></div>
+            <div class="card role p" style="--d:1.3s"><b>Approver</b><ul><li>Reviews documents</li><li>Signs and approves</li></ul></div>
+            <div class="card role p" style="--d:1.7s"><b>Vendor</b><ul><li>Uploads documents</li><li>Sees only their own</li></ul></div>
+          </div>
+        </div>
+        <p class="note a" style="--d:2.2s">Illustrative roles</p>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="scene" data-label="The four checks" data-ms="14000">
+      <div>
+        <p class="eyebrow a">Putting it together</p>
+        <h2 class="a" style="--d:.1s">Access is only granted when four checks all agree.</h2>
+        <p class="lede a" style="--d:.3s">Every request passes through the same four gates. If any one says no, the answer is no. A mistake in one place can't quietly open the door.</p>
+      </div>
+      <div class="vis">
+        <div class="scen a" style="--d:.4s">
+          <h4><b>Example 1:</b> An approver signs a document</h4>
+          <div class="locks">
+            <div class="lock ok" style="--d:1s"><svg><use href="#i-lock"/></svg><b>Purchased</b>Plan includes it</div>
+            <div class="lock ok" style="--d:1.6s"><svg><use href="#i-lock"/></svg><b>Identified</b>Signed in via IAM</div>
+            <div class="lock ok" style="--d:2.2s"><svg><use href="#i-lock"/></svg><b>Permitted</b>Role allows it</div>
+            <div class="lock ok" style="--d:2.8s"><svg><use href="#i-lock"/></svg><b>Allowed here</b>This document</div>
+            <div class="res ok" style="--d:3.4s">GRANTED</div>
+          </div>
+        </div>
+        <div class="scen a" style="--d:.6s">
+          <h4><b>Example 2:</b> A user opens a product their company didn't buy</h4>
+          <div class="locks">
+            <div class="lock no" style="--d:5s"><svg><use href="#i-lock"/></svg><b>Purchased</b>Not in plan</div>
+            <div class="lock skip"><svg><use href="#i-lock"/></svg><b>Identified</b>Not needed</div>
+            <div class="lock skip"><svg><use href="#i-lock"/></svg><b>Permitted</b>Not needed</div>
+            <div class="lock skip"><svg><use href="#i-lock"/></svg><b>Allowed here</b>Not needed</div>
+            <div class="res no" style="--d:5.6s">DENIED</div>
+          </div>
+        </div>
+        <p class="rule a" style="--d:6.4s">Purchased <b>and</b> identified <b>and</b> permitted <b>and</b> allowed for that item.</p>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="scene" data-label="Visibility" data-ms="12500">
+      <div>
+        <p class="eyebrow a">Question 4 of 4 · What is actually happening?</p>
+        <h2 class="a" style="--d:.1s">Full visibility, without seeing the customer's data.</h2>
+        <p class="lede a" style="--d:.3s">A small <strong>Telemetry Gateway</strong> in each customer's space reports how the platform is performing and being used, such as request counts, errors and speed. It all flows to one central view.</p>
+        <p class="analogy a" style="--d:.6s"><span>Think of it as</span> the meters and cameras on every floor, all feeding a single control room.</p>
+      </div>
+      <div class="vis">
+        <div class="card hub a" style="--d:.4s">
+          <b>GOS Telemetry Hub · Central view</b>
+          <div class="stats">
+            <div><strong>3</strong><span>customers online</span></div>
+            <div><strong>12</strong><span>services healthy</span></div>
+            <div><strong>0</strong><span>open alerts</span></div>
+          </div>
+        </div>
+        <div class="feeds">
+          <div class="feed"><div class="pipe"><i style="--d:0s"></i><i style="--d:.9s"></i></div><div class="gw a" style="--d:.8s"><b>Gateway A</b>Customer A</div></div>
+          <div class="feed"><div class="pipe"><i style="--d:.3s"></i><i style="--d:1.2s"></i></div><div class="gw a" style="--d:1s"><b>Gateway B</b>Customer B</div></div>
+          <div class="feed"><div class="pipe"><i style="--d:.6s"></i><i style="--d:1.5s"></i></div><div class="gw a" style="--d:1.2s"><b>Gateway C</b>Customer C</div></div>
+        </div>
+        <p class="offline a" style="--d:2.4s"><span class="dot"></span>If a connection drops, the gateway keeps a local copy and catches up when it returns.</p>
+        <p class="note a" style="--d:2.4s">Illustrative figures</p>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="scene" data-label="Recap" data-ms="0">
+      <div>
+        <p class="eyebrow a">The whole picture</p>
+        <h2 class="a" style="--d:.1s">Identity in the centre. Data at the edge. Visibility everywhere.</h2>
+        <p class="lede a" style="--d:.3s">Each part answers one simple question, and no single part is trusted to answer them all. That is why customers stay separate and the platform stays in control.</p>
+      </div>
+      <div class="vis">
+        <div class="recap">
+          <div class="rq card a" style="--c:var(--cyan);--d:.5s"><span class="who">GIC IAM</span><b>Who are you?</b><span>Sign-in, identity and which customer you belong to.</span></div>
+          <div class="rq card a" style="--c:var(--orange);--d:.9s"><span class="who">Control Plane</span><b>What has your company bought?</b><span>Products, features and usage limits.</span></div>
+          <div class="rq card a" style="--c:var(--violet);--d:1.3s"><span class="who">Tenant VMS</span><b>What can this person do?</b><span>Users, vendors, roles and workflows, run by the customer.</span></div>
+          <div class="rq card a" style="--c:var(--green);--d:1.7s"><span class="who">Telemetry</span><b>What is actually happening?</b><span>Usage, performance and health, seen centrally.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="controls">
+    <div class="btns">
+      <button id="prev" aria-label="Previous">&#9664;</button>
+      <button id="play" class="main">Pause</button>
+      <button id="next" aria-label="Next">&#9654;</button>
+    </div>
+    <div class="steps" id="steps"></div>
+    <div class="count" id="count">1 / 8</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var scenes=[].slice.call(document.querySelectorAll('.scene'));
+  var stepsEl=document.getElementById('steps'), playBtn=document.getElementById('play'), countEl=document.getElementById('count');
+  var cur=0, playing=true, elapsed=0, last=performance.now();
+  var steps=scenes.map(function(s,i){
+    var b=document.createElement('button');
+    b.innerHTML='<i></i><span>'+s.dataset.label+'</span>';
+    b.setAttribute('aria-label','Go to '+s.dataset.label);
+    b.onclick=function(){go(i)};
+    stepsEl.appendChild(b); return b;
+  });
+  function dur(i){return +scenes[i].dataset.ms||0}
+  function go(i){
+    i=Math.max(0,Math.min(scenes.length-1,i));
+    scenes[cur].classList.remove('active');
+    /* force reflow so entrance animations restart */
+    void scenes[i].offsetWidth;
+    scenes[i].classList.add('active');
+    cur=i; elapsed=0; last=performance.now();
+    render(); if(i===scenes.length-1){playing=false;playBtn.textContent='Replay'} else if(!playing&&playBtn.textContent==='Replay'){playing=true;playBtn.textContent='Pause'}
+    if(i===scenes.length-1){playing=false;playBtn.textContent='Replay'}
+  }
+  function render(){
+    steps.forEach(function(b,i){
+      b.classList.toggle('cur',i===cur); b.classList.toggle('done',i<cur);
+      b.firstChild.style.transform= i===cur ? 'scaleX('+(dur(i)?Math.min(1,elapsed/dur(i)):1)+')' : '';
+    });
+    countEl.textContent=(cur+1)+' / '+scenes.length;
+  }
+  function tick(now){
+    var dt=now-last; last=now;
+    if(playing&&dur(cur)){
+      elapsed+=dt;
+      if(elapsed>=dur(cur)){go(cur+1);}
+      else render();
+    }
+    requestAnimationFrame(tick);
+  }
+  playBtn.onclick=function(){
+    if(playBtn.textContent==='Replay'){playing=true;playBtn.textContent='Pause';go(0);return}
+    playing=!playing; playBtn.textContent=playing?'Pause':'Play'; last=performance.now();
+  };
+  document.getElementById('prev').onclick=function(){go(cur-1)};
+  document.getElementById('next').onclick=function(){go(cur+1)};
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight')go(cur+1);
+    else if(e.key==='ArrowLeft')go(cur-1);
+    else if(e.key===' '&&document.activeElement.tagName!=='BUTTON'){e.preventDefault();playBtn.click()}
+  });
+  render(); requestAnimationFrame(tick);
+})();
+</script>
+
+</body>
+</html>
